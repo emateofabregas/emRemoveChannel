@@ -1,0 +1,178 @@
+add_layer {RGBA_sky RGBA_sky.red RGBA_sky.green RGBA_sky.blue RGBA_sky.alpha}
+Group {
+ name emRemoveChannel1
+ inputs 2
+ knobChanged "import nuke\n\nn = nuke.thisNode()\nk = nuke.thisKnob()\n\nremove = nuke.toNode(\"Remove1\")\naov_value = n\[\"in\"].value()\n\nif n\[\"remove_channel\"].value() == True:\n    remove\[\"channels\"].setValue(aov_value)\n    "
+ tile_color 0x993559ff
+ label "<b>\[value in]"
+ note_font Verdana
+ addUserKnob {20 User l emRemoveChannel}
+ addUserKnob {6 remove_channel l "Remove Selected AOV from Layers" t "This checkbox removes the AOV from the 'Img' Input. " +STARTLINE}
+ remove_channel true
+ addUserKnob {41 in l AOV t "Select the BTY AOV that you want to remove." T Shuffle1.in}
+ addUserKnob {7 lpe_mix l remove t "Controls the contribution about you want to remove. 0= no removed, 1= removed."}
+ lpe_mix 1
+ addUserKnob {26 ""}
+ addUserKnob {26 _1 l mask T ""}
+ addUserKnob {41 maskChannelInput l "" -STARTLINE T Merge4.maskChannelInput}
+ addUserKnob {41 inject -STARTLINE T Merge4.inject}
+ addUserKnob {41 invert_mask l invert -STARTLINE T Merge4.invert_mask}
+ addUserKnob {41 fringe -STARTLINE T Merge4.fringe}
+ addUserKnob {41 mix T Merge4.mix}
+ addUserKnob {26 gap l " " T " "}
+ addUserKnob {26 autor l " " T "<font color=\"grey\">emRemoveChannel v1.2 | emateofabregas | 2024-2025 </font>"}
+}
+ Input {
+  inputs 0
+  name InputImg
+  xpos 44
+  ypos -116
+ }
+ Dot {
+  name Dot2
+  xpos 78
+  ypos -51
+ }
+set Nedfb8800 [stack 0]
+ Dot {
+  name Dot5
+  xpos -2
+  ypos -51
+ }
+set Nedfb8c00 [stack 0]
+ Dot {
+  name Dot4
+  xpos -2
+  ypos 297
+ }
+push $Nedfb8c00
+ Dot {
+  name Dot3
+  xpos -242
+  ypos -51
+ }
+ Input {
+  inputs 0
+  name InputMask
+  xpos -417
+  ypos 123
+  number 1
+ }
+ Switch {
+  inputs 2
+  which 1
+  name Switch1
+  label Mask
+  xpos -276
+  ypos 117
+  disable {{"\[exists parent.input1]"}}
+ }
+set Nedeb1e00 [stack 0]
+push $Nedfb8800
+ Shuffle {
+  in RGBA_sky
+  name Shuffle1
+  label aov
+  xpos 188
+  ypos -60
+ }
+set Nedeb1400 [stack 0]
+ Dot {
+  name Dot7
+  xpos 340
+  ypos -51
+ }
+ Expression {
+  inputs 1+1
+  expr0 gain*r
+  expr1 gain*g
+  expr2 gain*b
+  expr3 gain*a
+  name Expression2
+  label "lpe mix"
+  xpos 306
+  ypos 56
+  addUserKnob {20 User}
+  addUserKnob {7 gain}
+  gain {{parent.lpe_mix}}
+ }
+ Dot {
+  name Dot6
+  xpos 340
+  ypos 173
+ }
+push $Nedeb1e00
+ Expression {
+  expr3 gain*a
+  name Expression1
+  label "lpe mix"
+  xpos -142
+  ypos 117
+  addUserKnob {20 User}
+  addUserKnob {7 gain}
+  gain {{parent.lpe_mix}}
+ }
+push $Nedeb1400
+push $Nedfb8800
+ Dot {
+  name Dot1
+  xpos 78
+  ypos 32
+ }
+set Nf0efe000 [stack 0]
+ Merge2 {
+  inputs 2
+  operation from
+  name Merge1
+  xpos 188
+  ypos 29
+ }
+push $Nf0efe000
+ Merge2 {
+  inputs 2
+  operation divide
+  bbox B
+  name Merge2
+  xpos 188
+  ypos 123
+ }
+push $Nf0efe000
+ Merge2 {
+  inputs 2+1
+  operation multiply
+  Achannels rgb
+  name Merge4
+  xpos 44
+  ypos 123
+ }
+ ShuffleCopy {
+  inputs 2
+  black red
+  white green
+  red2 blue
+  out2 {{{parent.parent.Shuffle1.in}}}
+  name ShuffleCopy1
+  xpos 44
+  ypos 170
+ }
+ Remove {
+  channels RGBA_sky
+  name Remove1
+  xpos 44
+  ypos 216
+  disable {{!parent.remove_channel}}
+ }
+ Copy {
+  inputs 2
+  from0 rgba.alpha
+  to0 rgba.alpha
+  name Copy1
+  xpos 44
+  ypos 288
+ }
+ Output {
+  name Output1
+  xpos 44
+  ypos 351
+ }
+end_group
